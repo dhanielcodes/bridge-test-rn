@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
+    textTransform: 'capitalize',
     fontFamily: 'Poppins-Medium',
     marginTop: 20,
     width: '100%',

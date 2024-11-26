@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   cardDisplayProduct: {
-    aspectRatio: 0.7,
+    aspectRatio: 0.6,
     width: '47%',
     margin: 5,
     justifyContent: 'center',

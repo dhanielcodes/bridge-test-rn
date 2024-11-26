@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, Image} from 'react-native';
 import React from 'react';
 import Colors from '../config/Colors';
 import {screenWidth} from '../utils/Sizes';
+import AddIcon from '../../assets/icons/AddIcon';
 
 interface ItemCard {
   title?: any;
@@ -36,6 +37,9 @@ export default function ProductCard({
         {desc?.length > 23 ? `${desc?.slice(0, 23)}...` : desc}
       </Text>
       <Text style={styles.textPrice}>#{amount}</Text>
+      <View style={styles.plus}>
+        <AddIcon />
+      </View>
     </View>
   );
 }
@@ -48,8 +52,7 @@ const styles = StyleSheet.create({
     height: '100%',
     padding: 20,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderColor: Colors.DEFAULT_GREY,
+    borderColor: '#E2E2E2',
   },
   text: {
     fontFamily: 'Poppins-Medium',
@@ -65,5 +68,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     color: Colors.DEFAULT_YELLOW,
     width: '100%',
+  },
+  plus: {
+    position: 'absolute',
+    bottom: 7,
+    right: -7,
   },
 });
