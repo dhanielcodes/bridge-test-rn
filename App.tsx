@@ -9,6 +9,7 @@ import Home from './src/pages/Home';
 import {screenHeight, screenWidth} from './src/utils/Sizes';
 import {NavigationContainer} from '@react-navigation/native';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import HomeIcon from './assets/icons/tabIcons/HomeIcon';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,9 @@ function App(): React.JSX.Element {
             component={Home}
             options={{
               headerShown: false,
+              tabBarIcon: ({focused}: User) => (
+                <HomeIcon color={focused ? '#12AF37' : 'black'} />
+              ),
               tabBarLabel: ({focused}: User) => (
                 <Text
                   style={{
