@@ -1,45 +1,49 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
+/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  useColorScheme,
-} from 'react-native';
+import {Text} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import FormInput from './src/components/FormInput';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {MainStackParamList} from './src/types/navigation';
+import Home from './src/pages/Home';
+import {screenHeight, screenWidth} from './src/utils/Sizes';
+import {NavigationContainer} from '@react-navigation/native';
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const MainStack = createBottomTabNavigator<MainStackParamList>();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <FormInput name="Daniel" label="Daniel Ad" />
-      </ScrollView>
-    </SafeAreaView>
-  );
+interface User {
+  focused?: any;
 }
 
-/* const styles = StyleSheet.create({
- 
-}); */
+function App(): React.JSX.Element {
+  return (
+    <NavigationContainer>
+      <MainStack.Navigator
+        screenOptions={{
+          tabBarStyle: {
+            height: screenHeight(0.099),
+            paddingTop: screenHeight(0.02),
+          },
+        }}>
+        <MainStack.Screen
+          name="Home"
+          component={Home}
+          options={{
+            headerShown: false,
+            tabBarLabel: ({focused}: User) => (
+              <Text
+                style={{
+                  fontSize: screenWidth(0.039),
+                  color: focused ? Colors.DARK_GREY : Colors.OTHER_GREY,
+                }}>
+                Home
+              </Text>
+            ),
+          }}
+        />
+      </MainStack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default App;

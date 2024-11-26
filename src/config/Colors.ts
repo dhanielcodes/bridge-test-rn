@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 export default {
   DEFAULT_WHITE: "#FFFFFF",
   DEFAULT_RED: "#E00404",
@@ -13,7 +14,7 @@ export default {
 
   LIGHT_BLUE: "#09A5DB",
   LIGHT_BLUE2: "#DBEEFF",
-  INVERT_BLUE: "#EBFAFF",
+  INVERT_BLUE: '#EBFAFF',
   DARKER_BLUE:'#011B33',
 
 
@@ -24,4 +25,4 @@ export default {
   ORDER_PROGRESS_DARK:'#09A5DB',
   ORDER_COMPLETED_DARK:'#28A982',
   ORDER_CANCELLED_DARK:'#DF4268',
-}
+};
