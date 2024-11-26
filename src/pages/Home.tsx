@@ -18,7 +18,6 @@ import {ApiService} from '../service';
 import {useQuery} from '@tanstack/react-query';
 import ItemCard from '../components/ItemCard';
 import ProductCard from '../components/ProductCard';
-import SkeletonContent from 'react-native-skeleton-content';
 
 function Home(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
@@ -34,7 +33,7 @@ function Home(): React.JSX.Element {
     queryFn: () => ApiService.GetProductsQuery(),
   });
 
-  const {data: arrayCategory, isLoading} = useQuery({
+  const {data: arrayCategory} = useQuery({
     queryKey: ['GetProductsCategoryQuery'],
     queryFn: () => ApiService.GetProductsCategoryQuery(),
   });
@@ -90,29 +89,21 @@ function Home(): React.JSX.Element {
             <Text style={styles.historyTabText}>Others</Text>
           </View>
         </View>
-        <SkeletonContent
-          containerStyle={{flex: 1, width: 300}}
-          isLoading={isLoading}
-          layout={[
-            {key: 'someId', width: 220, height: 20, marginBottom: 6},
-            {key: 'someOtherId', width: 180, height: 20, marginBottom: 6},
-          ]}>
-          <View style={styles.cardDisplaySection}>
-            {categories?.map(
-              (item?: {title: string; image: string; color: string}) => {
-                return (
-                  <View key={item?.title} style={styles.cardDisplayTab}>
-                    <ItemCard
-                      title={item?.title}
-                      image={item?.image}
-                      color={item?.color}
-                    />
-                  </View>
-                );
-              },
-            )}
-          </View>
-        </SkeletonContent>
+        <View style={styles.cardDisplaySection}>
+          {categories?.map(
+            (item?: {title: string; image: string; color: string}) => {
+              return (
+                <View key={item?.title} style={styles.cardDisplayTab}>
+                  <ItemCard
+                    title={item?.title}
+                    image={item?.image}
+                    color={item?.color}
+                  />
+                </View>
+              );
+            },
+          )}
+        </View>
 
         <View style={styles.cardDisplaySection}>
           {data?.map(

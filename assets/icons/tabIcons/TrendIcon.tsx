@@ -5,7 +5,7 @@ import {Path} from 'react-native-svg';
 interface Icon {
   color?: string;
 }
-export default function OrderIcon({color = 'black'}: Icon): React.JSX.Element {
+export default function TrendIcon({color = 'black'}: Icon): React.JSX.Element {
   return (
     <Svg
       width="20"
