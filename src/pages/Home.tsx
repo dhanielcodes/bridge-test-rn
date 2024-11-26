@@ -1,11 +1,12 @@
-/* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
@@ -18,9 +19,25 @@ import {ApiService} from '../service';
 import {useQuery} from '@tanstack/react-query';
 import ItemCard from '../components/ItemCard';
 import ProductCard from '../components/ProductCard';
+import SearchIcon from '../../assets/icons/SearchIcon';
+import * as Yup from 'yup';
+import {useFormik} from 'formik';
+import {getDataObject, storeDataObject} from '../storage';
 
 function Home(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+
+  const [history, setHistory] = useState<any>([]);
+
+  const getHistory = () => {
+    getDataObject('history').then(val => {
+      if (val) {
+        setHistory(val);
+      } else {
+        setHistory([]);
+      }
+    });
+  };
 
   const backgroundStyle = {
     backgroundColor: Colors.DEFAULT_WHITE,
@@ -28,12 +45,35 @@ function Home(): React.JSX.Element {
     padding: 16,
   };
 
-  const {data: array} = useQuery({
-    queryKey: ['GetProductsQuery'],
-    queryFn: () => ApiService.GetProductsQuery(),
+  const formik = useFormik({
+    initialValues: {
+      search: '',
+    },
+    validationSchema: Yup.object().shape({
+      search: Yup.string().required('Input Keyword'),
+    }),
+    onSubmit: (values?: any) => {
+      refetch(values.search);
+      storeDataObject('history', [...history, values.search]);
+      getHistory();
+    },
   });
 
-  const {data: arrayCategory} = useQuery({
+  const {
+    data: array,
+    isLoading: isLoadingProducts,
+    isFetching: isFetchingProducts,
+  } = useQuery({
+    queryKey: ['GetProductsQuery'],
+    queryFn: () => ApiService.GetProductsQuery(formik.values.search),
+  });
+
+  const {
+    data: arrayCategory,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ['GetProductsCategoryQuery'],
     queryFn: () => ApiService.GetProductsCategoryQuery(),
   });
@@ -55,8 +95,11 @@ function Home(): React.JSX.Element {
     };
   });
 
-  console.log(data);
+  console.log(formik.values.search, history, 'formik');
 
+  useEffect(() => {
+    getHistory();
+  }, []);
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
@@ -67,66 +110,79 @@ function Home(): React.JSX.Element {
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <View style={styles.top}>
-          <FormInput width={screenWidth(0.72)} name="Daniel" />
+          <FormInput
+            IconLeft={SearchIcon}
+            formik={formik}
+            width={screenWidth(0.72)}
+            name="search"
+            onPressLeft={() => {
+              formik.handleSubmit();
+            }}
+          />
           <SettingsIcon />
         </View>
         <View style={styles.searchTop}>
           <Text style={styles.searchText}>Search History</Text>
-          <Text style={styles.clearText}>clear</Text>
+          <TouchableOpacity
+            onPress={() => {
+              storeDataObject('history', []);
+              getHistory();
+            }}>
+            <Text style={styles.clearText}>clear</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.historyTab}>
-          <View style={styles.historyTabItem}>
-            <Text style={styles.historyTabText}>Others</Text>
-          </View>
-          <View style={styles.historyTabItem}>
-            <Text style={styles.historyTabText}>Others</Text>
-          </View>
-
-          <View style={styles.historyTabItem}>
-            <Text style={styles.historyTabText}>Others</Text>
-          </View>
-          <View style={styles.historyTabItem}>
-            <Text style={styles.historyTabText}>Others</Text>
-          </View>
+          {history?.map((item: string, index: number) => {
+            return (
+              <View key={index} style={styles.historyTabItem}>
+                <Text style={styles.historyTabText}>{item}</Text>
+              </View>
+            );
+          })}
         </View>
-        <View style={styles.cardDisplaySection}>
-          {categories?.map(
-            (item?: {title: string; image: string; color: string}) => {
-              return (
-                <View key={item?.title} style={styles.cardDisplayTab}>
-                  <ItemCard
-                    title={item?.title}
-                    image={item?.image}
-                    color={item?.color}
-                  />
-                </View>
-              );
-            },
-          )}
-        </View>
-
-        <View style={styles.cardDisplaySection}>
-          {data?.map(
-            (item?: {
-              title: string;
-              image: string;
-              color: string;
-              price: string;
-              description: string;
-            }) => {
-              return (
-                <View key={item?.title} style={styles.cardDisplayProduct}>
-                  <ProductCard
-                    title={item?.title}
-                    image={item?.image}
-                    amount={item?.price}
-                    desc={item?.description}
-                  />
-                </View>
-              );
-            },
-          )}
-        </View>
+        {isLoading || isLoadingProducts || isFetchingProducts || isFetching ? (
+          <ActivityIndicator size={'large'} />
+        ) : (
+          <>
+            <View style={styles.cardDisplaySection}>
+              {categories?.map(
+                (item?: {title: string; image: string; color: string}) => {
+                  return (
+                    <View key={item?.title} style={styles.cardDisplayTab}>
+                      <ItemCard
+                        title={item?.title}
+                        image={item?.image}
+                        color={item?.color}
+                      />
+                    </View>
+                  );
+                },
+              )}
+            </View>
+            <View style={styles.cardDisplaySection}>
+              {data?.map(
+                (item?: {
+                  title: string;
+                  image: string;
+                  color: string;
+                  price: string;
+                  description: string;
+                }) => {
+                  return (
+                    <View key={item?.title} style={styles.cardDisplayProduct}>
+                      <ProductCard
+                        title={item?.title}
+                        image={item?.image}
+                        amount={item?.price}
+                        desc={item?.description}
+                      />
+                    </View>
+                  );
+                },
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -155,7 +211,8 @@ const styles = StyleSheet.create({
   historyTab: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   historyTabItem: {
     width: '20%',
@@ -166,6 +223,7 @@ const styles = StyleSheet.create({
   },
   historyTabText: {
     color: Colors.DEFAULT_GREY,
+    width: '100%',
     fontFamily: 'Poppins-Medium',
     fontSize: screenWidth(0.026),
   },
@@ -173,7 +231,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: 14,
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   cardDisplayTab: {
     aspectRatio: 1,

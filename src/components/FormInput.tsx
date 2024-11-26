@@ -1,6 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {TextInput, View, Text, StyleSheet} from 'react-native';
+import {
+  TextInput,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import {screenWidth} from '../utils/Sizes';
 import Colors from '../config/Colors';
 
@@ -21,6 +27,8 @@ interface FormInputProps {
   IconRight?: React.FC<{width: string; height: string}>;
   IconLeft?: React.FC<{width: string; height: string}>;
   hint?: string;
+  onPressRight?: () => void;
+  onPressLeft?: () => void;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -38,6 +46,8 @@ const FormInput: React.FC<FormInputProps> = ({
   IconRight,
   IconLeft,
   hint,
+  onPressLeft,
+  onPressRight,
 }) => {
   return (
     <View>
@@ -51,9 +61,11 @@ const FormInput: React.FC<FormInputProps> = ({
           {width: width, borderColor: '#EFEFEF', backgroundColor: background},
         ]}>
         {IconLeft && (
-          <View style={{paddingLeft: screenWidth(0.035)}}>
+          <TouchableOpacity
+            onPress={onPressLeft}
+            style={{paddingLeft: screenWidth(0.035)}}>
             <IconLeft width="20px" height="20px" />
-          </View>
+          </TouchableOpacity>
         )}
         <TextInput
           style={[styles.textInput]}
@@ -67,14 +79,15 @@ const FormInput: React.FC<FormInputProps> = ({
           maxLength={max}
         />
         {IconRight && (
-          <View style={{paddingRight: screenWidth(0.035)}}>
+          <TouchableOpacity
+            onPress={onPressRight}
+            style={{paddingRight: screenWidth(0.035)}}>
             <IconRight width="20px" height="20px" />
-          </View>
+          </TouchableOpacity>
         )}
       </View>
       {formik?.errors?.[name] ? (
         <View style={styles.errorContainer}>
-          <View style={styles.errorIcon} />
           <Text style={styles.errorText}>{formik.errors[name]}</Text>
         </View>
       ) : hint ? (
@@ -111,16 +124,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   errorText: {
-    color: '#E10000',
+    color: '#e1000096',
     fontSize: 12,
     marginLeft: 4,
   },
-  errorIcon: {
-    width: 14,
-    height: 14,
-    backgroundColor: '#E10000',
-    borderRadius: 7,
-  },
+
   hintText: {
     color: '#818898',
     fontSize: 12,
