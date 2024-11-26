@@ -163,48 +163,58 @@ function Home(): React.JSX.Element {
         ) : (
           <>
             <View style={styles.cardDisplaySection}>
-              {categories?.map(
-                (item?: {title: string; image: string; color: string}) => {
-                  return (
-                    <View key={item?.title} style={styles.cardDisplayTab}>
-                      <ItemCard
-                        title={item?.title}
-                        image={item?.image}
-                        color={item?.color}
-                      />
-                    </View>
-                  );
-                },
-              )}
-            </View>
-            <View style={styles.cardDisplaySection}>
-              {array
-                ?.map((item?: any) => {
-                  return {
-                    ...item,
-                    color: generateRandomColor(),
-                  };
-                })
-                ?.map(
-                  (item?: {
-                    title: string;
-                    image: string;
-                    color: string;
-                    price: string;
-                    description: string;
-                  }) => {
+              {categories?.length === 0 ? (
+                <Text>No Result</Text>
+              ) : (
+                categories?.map(
+                  (item?: {title: string; image: string; color: string}) => {
                     return (
-                      <View key={item?.title} style={styles.cardDisplayProduct}>
-                        <ProductCard
+                      <View key={item?.title} style={styles.cardDisplayTab}>
+                        <ItemCard
                           title={item?.title}
                           image={item?.image}
-                          amount={item?.price}
-                          desc={item?.description}
+                          color={item?.color}
                         />
                       </View>
                     );
                   },
-                )}
+                )
+              )}
+            </View>
+            <View style={styles.cardDisplaySection}>
+              {array?.length === 0 ? (
+                <Text>No Result</Text>
+              ) : (
+                array
+                  ?.map((item?: any) => {
+                    return {
+                      ...item,
+                      color: generateRandomColor(),
+                    };
+                  })
+                  ?.map(
+                    (item?: {
+                      title: string;
+                      image: string;
+                      color: string;
+                      price: string;
+                      description: string;
+                    }) => {
+                      return (
+                        <View
+                          key={item?.title}
+                          style={styles.cardDisplayProduct}>
+                          <ProductCard
+                            title={item?.title}
+                            image={item?.image}
+                            amount={item?.price}
+                            desc={item?.description}
+                          />
+                        </View>
+                      );
+                    },
+                  )
+              )}
             </View>
           </>
         )}
