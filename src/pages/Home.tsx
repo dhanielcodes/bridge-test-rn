@@ -16,7 +16,7 @@ import SettingsIcon from '../../assets/icons/SettingsIcon';
 import {screenHeight, screenWidth} from '../utils/Sizes';
 import Colors from '../config/Colors';
 import {ApiService} from '../service';
-import {useQuery} from '@tanstack/react-query';
+import {RefetchOptions, useQuery} from '@tanstack/react-query';
 import ItemCard from '../components/ItemCard';
 import ProductCard from '../components/ProductCard';
 import SearchIcon from '../../assets/icons/SearchIcon';
@@ -53,7 +53,9 @@ function Home(): React.JSX.Element {
       search: Yup.string().required('Input Keyword'),
     }),
     onSubmit: (values?: any) => {
-      refetch(values.search);
+      refetchProducts(
+        `/category/${values.search}` as unknown as RefetchOptions,
+      );
       storeDataObject('history', [...history, values.search]);
       getHistory();
     },
@@ -63,40 +65,56 @@ function Home(): React.JSX.Element {
     data: array,
     isLoading: isLoadingProducts,
     isFetching: isFetchingProducts,
+    refetch: refetchProducts,
   } = useQuery({
     queryKey: ['GetProductsQuery'],
-    queryFn: () => ApiService.GetProductsQuery(formik.values.search),
+    queryFn: () =>
+      ApiService.GetProductsQuery(
+        formik.values.search ? `/category/${formik.values.search}` : '',
+      ),
   });
 
   const {
     data: arrayCategory,
     isLoading,
     isFetching,
-    refetch,
   } = useQuery({
     queryKey: ['GetProductsCategoryQuery'],
-    queryFn: () => ApiService.GetProductsCategoryQuery(),
+    queryFn: () =>
+      ApiService.GetProductsCategoryQuery(`/${formik.values.search}`),
   });
 
   const generateRandomColor = () => {
     return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
   };
-  const data = array?.map((item?: any) => {
+  /* const data = array?.map((item?: any) => {
     return {
       ...item,
       color: generateRandomColor(),
     };
-  });
+  }); */
 
-  const categories = arrayCategory?.map((item?: string) => {
-    return {
-      title: item,
-      color: generateRandomColor(),
-    };
-  });
+  const filtered = arrayCategory?.filter((item: string) =>
+    item?.includes(formik.values.search),
+  )?.length;
 
-  console.log(formik.values.search, history, 'formik');
+  const categories = filtered
+    ? arrayCategory
+        ?.filter((item: string) => item?.includes(formik.values.search))
+        ?.map((item?: string) => {
+          return {
+            title: item,
+            color: generateRandomColor(),
+          };
+        })
+    : arrayCategory?.map((item?: string) => {
+        return {
+          title: item,
+          color: generateRandomColor(),
+        };
+      });
 
+  console.log('formik', array, arrayCategory);
   useEffect(() => {
     getHistory();
   }, []);
@@ -160,26 +178,33 @@ function Home(): React.JSX.Element {
               )}
             </View>
             <View style={styles.cardDisplaySection}>
-              {data?.map(
-                (item?: {
-                  title: string;
-                  image: string;
-                  color: string;
-                  price: string;
-                  description: string;
-                }) => {
-                  return (
-                    <View key={item?.title} style={styles.cardDisplayProduct}>
-                      <ProductCard
-                        title={item?.title}
-                        image={item?.image}
-                        amount={item?.price}
-                        desc={item?.description}
-                      />
-                    </View>
-                  );
-                },
-              )}
+              {array
+                ?.map((item?: any) => {
+                  return {
+                    ...item,
+                    color: generateRandomColor(),
+                  };
+                })
+                ?.map(
+                  (item?: {
+                    title: string;
+                    image: string;
+                    color: string;
+                    price: string;
+                    description: string;
+                  }) => {
+                    return (
+                      <View key={item?.title} style={styles.cardDisplayProduct}>
+                        <ProductCard
+                          title={item?.title}
+                          image={item?.image}
+                          amount={item?.price}
+                          desc={item?.description}
+                        />
+                      </View>
+                    );
+                  },
+                )}
             </View>
           </>
         )}
@@ -211,7 +236,6 @@ const styles = StyleSheet.create({
   historyTab: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   historyTabItem: {
